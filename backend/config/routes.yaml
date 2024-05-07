@@ -1,5 +1,47 @@
-controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
-    type: attribute
+# Route pour créer un nouveau véhicule
+vehicle_create:
+    path: '/api/vehicles'
+    controller: App\Controller\VehicleController::createVehicle
+    methods: ['POST']
+
+# Route pour mettre à jour un véhicule existant
+vehicle_update:
+    path: '/api/vehicles/{id}'
+    controller: App\Controller\VehicleController::updateVehicle
+    methods: ['PUT']
+
+# Route pour supprimer un véhicule
+vehicle_delete:
+    path: '/api/vehicles/{id}'
+    controller: App\Controller\VehicleController::deleteVehicle
+    methods: ['DELETE']
+
+# Route pour récupérer un véhicule spécifique
+vehicle_get:
+    path: '/api/vehicles/{id}'
+    controller: App\Controller\VehicleController::getVehicle
+    methods: ['GET']
+
+# Route pour créer une nouvelle disponibilité
+availability_create:
+    path: '/api/availabilities'
+    controller: App\Controller\AvailabilityController::createAvailability
+    methods: ['POST']
+
+# Route pour mettre à jour une disponibilité existante
+availability_update:
+    path: '/api/availabilities/{id}'
+    controller: App\Controller\AvailabilityController::updateAvailability
+    methods: ['PUT']
+
+# Route pour supprimer une disponibilité
+availability_delete:
+    path: '/api/availabilities/{id}'
+    controller: App\Controller\AvailabilityController::deleteAvailability
+    methods: ['DELETE']
+
+# Route pour récupérer une disponibilité spécifique
+availability_get:
+    path: '/api/availabilities/{id}'
+    controller: App\Controller\AvailabilityController::getAvailability
+    methods: ['GET']
