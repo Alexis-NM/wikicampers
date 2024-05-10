@@ -7,15 +7,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
 
 class AvailabilityController extends AbstractController
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     /**
      * @Route("/api/availabilities", name="availability_index", methods={"GET"})
      */
     public function index(): Response
     {
-        $availabilities = $this->getDoctrine()->getRepository(Availability::class)->findAll();
+        $availabilities = $this->entityManager->getRepository(Availability::class)->findAll();
 
         return $this->json($availabilities);
     }
@@ -25,7 +33,7 @@ class AvailabilityController extends AbstractController
      */
     public function show($id): Response
     {
-        $availability = $this->getDoctrine()->getRepository(Availability::class)->find($id);
+        $availability = $this->entityManager->getRepository(Availability::class)->find($id);
 
         return $this->json($availability);
     }
@@ -43,9 +51,8 @@ class AvailabilityController extends AbstractController
         $availability->setPricePerDay($data['pricePerDay']);
         $availability->setStatus($data['status']);
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($availability);
-        $entityManager->flush();
+        $this->entityManager->persist($availability);
+        $this->entityManager->flush();
 
         return $this->json($availability);
     }
@@ -55,7 +62,7 @@ class AvailabilityController extends AbstractController
      */
     public function updateAvailability(Request $request, $id): Response
     {
-        $availability = $this->getDoctrine()->getRepository(Availability::class)->find($id);
+        $availability = $this->entityManager->getRepository(Availability::class)->find($id);
         $data = json_decode($request->getContent(), true);
 
         $availability->setStartDate(new \DateTime($data['startDate']));
@@ -63,8 +70,7 @@ class AvailabilityController extends AbstractController
         $availability->setPricePerDay($data['pricePerDay']);
         $availability->setStatus($data['status']);
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->flush();
+        $this->entityManager->flush();
 
         return $this->json($availability);
     }
@@ -74,11 +80,10 @@ class AvailabilityController extends AbstractController
      */
     public function deleteAvailability($id): Response
     {
-        $availability = $this->getDoctrine()->getRepository(Availability::class)->find($id);
+        $availability = $this->entityManager->getRepository(Availability::class)->find($id);
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($availability);
-        $entityManager->flush();
+        $this->entityManager->remove($availability);
+        $this->entityManager->flush();
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

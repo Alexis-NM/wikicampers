@@ -73,15 +73,16 @@ class Availability
 
     public function isStatut(): ?bool
     {
-        return $this->boolean;
+        return $this->statut;
     }
 
     public function setStatut(bool $statut): static
     {
-        $this->boolean = $statut;
+        $this->statut = $statut;
 
         return $this;
     }
+
         public function getVehicle(): ?Vehicle
     {
         return $this->vehicle;

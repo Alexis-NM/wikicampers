@@ -16,6 +16,12 @@ vehicle_delete:
     controller: App\Controller\VehicleController::deleteVehicle
     methods: ['DELETE']
 
+# Route pour récupérer tous les véhicules
+vehicle_index:
+    path: '/api/vehicles'
+    controller: App\Controller\VehicleController::getAllVehicles
+    methods: ['GET']
+
 # Route pour récupérer un véhicule spécifique
 vehicle_get:
     path: '/api/vehicles/{id}'

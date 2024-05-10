@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\VehicleRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VehicleRepository::class)]
@@ -18,43 +16,8 @@ class Vehicle
     #[ORM\Column(length: 255)]
     private ?string $marque = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $modele = null;
-
-    #[ORM\OneToMany(mappedBy: 'vehicle', targetEntity: Availability::class)]
-    private Collection $availabilities;
-
-    public function __construct()
-    {
-        $this->availabilities = new ArrayCollection();
-    }
-
-    public function getAvailabilities(): Collection
-    {
-        return $this->availabilities;
-    }
-
-    public function addAvailability(Availability $availability): self
-    {
-        if (!$this->availabilities->contains($availability)) {
-            $this->availabilities[] = $availability;
-            $availability->setVehicle($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAvailability(Availability $availability): self
-    {
-        if ($this->availabilities->removeElement($availability)) {
-            if ($availability->getVehicle() === $this) {
-                $availability->setVehicle(null);
-            }
-        }
-
-        return $this;
-    }
-
 
     public function getId(): ?int
     {
@@ -78,7 +41,7 @@ class Vehicle
         return $this->modele;
     }
 
-    public function setModele(string $modele): static
+    public function setModele(?string $modele): static
     {
         $this->modele = $modele;
 
