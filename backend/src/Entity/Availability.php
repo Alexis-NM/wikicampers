@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AvailabilityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Controller\VehicleController;
 
 #[ORM\Entity(repositoryClass: AvailabilityRepository::class)]
 class Availability
@@ -29,7 +30,6 @@ class Availability
     #[ORM\ManyToOne(targetEntity: Vehicle::class, inversedBy: 'availabilities')]
     private ?Vehicle $vehicle = null;
 
-
     public function getId(): ?int
     {
         return $this->id;
@@ -43,7 +43,6 @@ class Availability
     public function setDateDebut(\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
-
         return $this;
     }
 
@@ -55,7 +54,6 @@ class Availability
     public function setDateFin(\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
-
         return $this;
     }
 
@@ -67,7 +65,6 @@ class Availability
     public function setPrixParJour(float $prixParJour): static
     {
         $this->prixParJour = $prixParJour;
-
         return $this;
     }
 
@@ -79,11 +76,10 @@ class Availability
     public function setStatut(bool $statut): static
     {
         $this->statut = $statut;
-
         return $this;
     }
 
-        public function getVehicle(): ?Vehicle
+    public function getVehicle(): ?Vehicle
     {
         return $this->vehicle;
     }
@@ -91,7 +87,6 @@ class Availability
     public function setVehicle(?Vehicle $vehicle): self
     {
         $this->vehicle = $vehicle;
-
         return $this;
     }
 }

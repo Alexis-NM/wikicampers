@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controller;
-
 use App\Entity\Availability;
+use App\Entity\Vehicle;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,37 +25,95 @@ class AvailabilityController extends AbstractController
     {
         $availabilities = $this->entityManager->getRepository(Availability::class)->findAll();
 
-        return $this->json($availabilities);
+        $availabilityArray = [];
+        foreach ($availabilities as $availability) {
+            $availabilityArray[] = [
+                'id' => $availability->getId(),
+                'dateDebut' => $availability->getDateDebut()->format('Y-m-d H:i:s'),
+                'dateFin' => $availability->getDateFin()->format('Y-m-d H:i:s'),
+                'prixParJour' => $availability->getPrixParJour(),
+                'statut' => $availability->isStatut(),
+                'vehicle' => [
+                    'id' => $availability->getVehicle()->getId(),
+                    'marque' => $availability->getVehicle()->getMarque(),
+                    'modele' => $availability->getVehicle()->getModele()
+                ]
+            ];
+        }
+
+        return $this->json($availabilityArray);
     }
 
-    /**
-     * @Route("/api/availabilities/{id}", name="availability_show", methods={"GET"})
-     */
-    public function show($id): Response
-    {
-        $availability = $this->entityManager->getRepository(Availability::class)->find($id);
+/**
+* @Route("/api/availabilities", name="availability_create", methods={"POST"})
+*/
+public function createAvailability(Request $request): Response
+{
+   $data = json_decode($request->getContent(), true);
 
-        return $this->json($availability);
-    }
+   $availability = new Availability();
+   $availability->setDateDebut(new \DateTime($data['dateDebut']));
+   $availability->setDateFin(new \DateTime($data['dateFin']));
+   $availability->setPrixParJour($data['prixParJour']);
+   $availability->setStatut($data['statut']);
 
-    /**
-     * @Route("/api/availabilities", name="availability_create", methods={"POST"})
-     */
-    public function createAvailability(Request $request): Response
-    {
-        $data = json_decode($request->getContent(), true);
+   $vehicleId = $data['vehicle']['id'];
+   $vehicle = $this->entityManager->getRepository(Vehicle::class)->find($vehicleId);
+   $vehicleData = [
+       'id' => $vehicle->getId(),
+       'marque' => $vehicle->getMarque(),
+       'modele' => $vehicle->getModele()
+   ];
+   $availability->setVehicle($vehicle);
 
-        $availability = new Availability();
-        $availability->setStartDate(new \DateTime($data['startDate']));
-        $availability->setEndDate(new \DateTime($data['endDate']));
-        $availability->setPricePerDay($data['pricePerDay']);
-        $availability->setStatus($data['status']);
+   $this->entityManager->persist($availability);
+   $this->entityManager->flush();
 
-        $this->entityManager->persist($availability);
-        $this->entityManager->flush();
+   $availabilityArray = [
+       'id' => $availability->getId(),
+       'dateDebut' => $availability->getDateDebut()->format('Y-m-d H:i:s'),
+       'dateFin' => $availability->getDateFin()->format('Y-m-d H:i:s'),
+       'prixParJour' => $availability->getPrixParJour(),
+       'statut' => $availability->isStatut(),
+       'vehicle' => $vehicleData
+   ];
 
-        return $this->json($availability);
-    }
+   return $this->json($availabilityArray);
+}
+
+
+
+/**
+* @Route("/api/availabilities/{id}", name="availability_show", methods={"GET"})
+*/
+public function show($id): Response
+{
+   $availability = $this->entityManager->getRepository(Availability::class)->find($id);
+
+   if (!$availability) {
+       throw $this->createNotFoundException('L\'availability avec l\'ID ' . $id . ' n\'existe pas.');
+   }
+
+   $availabilityArray = [
+       'id' => $availability->getId(),
+       'dateDebut' => $availability->getDateDebut()->format('Y-m-d H:i:s'),
+       'dateFin' => $availability->getDateFin()->format('Y-m-d H:i:s'),
+       'prixParJour' => $availability->getPrixParJour(),
+       'statut' => $availability->isStatut()
+   ];
+
+   $vehicle = $availability->getVehicle();
+   $vehicleData = [
+       'id' => $vehicle->getId(),
+       'marque' => $vehicle->getMarque(),
+       'modele' => $vehicle->getModele()
+   ];
+
+   $availabilityArray['vehicle'] = $vehicleData;
+
+   return $this->json($availabilityArray);
+}
+
 
     /**
      * @Route("/api/availabilities/{id}", name="availability_update", methods={"PUT"})
@@ -65,14 +123,31 @@ class AvailabilityController extends AbstractController
         $availability = $this->entityManager->getRepository(Availability::class)->find($id);
         $data = json_decode($request->getContent(), true);
 
-        $availability->setStartDate(new \DateTime($data['startDate']));
-        $availability->setEndDate(new \DateTime($data['endDate']));
-        $availability->setPricePerDay($data['pricePerDay']);
-        $availability->setStatus($data['status']);
+        if (!$availability) {
+            throw $this->createNotFoundException('L\'availability avec l\'ID ' . $id . ' n\'existe pas.');
+        }
+
+        $availability->setDateDebut(new \DateTime($data['dateDebut']));
+        $availability->setDateFin(new \DateTime($data['dateFin']));
+        $availability->setPrixParJour($data['prixParJour']);
+        $availability->setStatut($data['statut']);
 
         $this->entityManager->flush();
 
-        return $this->json($availability);
+        $availabilityArray = [
+            'id' => $availability->getId(),
+            'dateDebut' => $availability->getDateDebut()->format('Y-m-d H:i:s'),
+            'dateFin' => $availability->getDateFin()->format('Y-m-d H:i:s'),
+            'prixParJour' => $availability->getPrixParJour(),
+            'statut' => $availability->isStatut(),
+            'vehicle' => [
+                'id' => $availability->getVehicle()->getId(),
+                'marque' => $availability->getVehicle()->getMarque(),
+                'modele' => $availability->getVehicle()->getModele()
+            ]
+        ];
+
+        return $this->json($availabilityArray);
     }
 
     /**
@@ -81,6 +156,10 @@ class AvailabilityController extends AbstractController
     public function deleteAvailability($id): Response
     {
         $availability = $this->entityManager->getRepository(Availability::class)->find($id);
+
+        if (!$availability) {
+            throw $this->createNotFoundException('L\'availability avec l\'ID ' . $id . ' n\'existe pas.');
+        }
 
         $this->entityManager->remove($availability);
         $this->entityManager->flush();

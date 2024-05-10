@@ -47,7 +47,7 @@ availability_delete:
     methods: ['DELETE']
 
 # Route pour récupérer une disponibilité spécifique
-availability_get:
+availability_show:
     path: '/api/availabilities/{id}'
-    controller: App\Controller\AvailabilityController::getAvailability
+    controller: App\Controller\AvailabilityController::show
     methods: ['GET']
