@@ -51,3 +51,9 @@ availability_show:
     path: '/api/availabilities/{id}'
     controller: App\Controller\AvailabilityController::show
     methods: ['GET']
+
+# Route pour récupérer les disponibilités d'un véhicule spécifique
+availability_get_by_vehicle:
+    path: '/api/availabilities/vehicle/{id}'
+    controller: App\Controller\AvailabilityController::getAvailabilitiesByVehicle
+    methods: ['GET']

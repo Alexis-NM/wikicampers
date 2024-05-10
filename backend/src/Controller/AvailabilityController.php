@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 use App\Entity\Availability;
+use App\Repository\AvailabilityRepository;
 use App\Entity\Vehicle;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -147,6 +148,34 @@ public function show($id): Response
             ]
         ];
 
+        return $this->json($availabilityArray);
+    }
+
+    /**
+     * @Route("/api/availabilities/vehicle/{id}", name="availability_get_by_vehicle", methods={"GET"})
+     */
+    public function getAvailabilitiesByVehicle($id, AvailabilityRepository $availabilityRepository): Response
+    {
+        $availabilities = $availabilityRepository->findBy(['vehicle' => $id]);
+
+        // Convertir les disponibilités en format JSON
+        $availabilityArray = [];
+        foreach ($availabilities as $availability) {
+            $availabilityArray[] = [
+                'id' => $availability->getId(),
+                'dateDebut' => $availability->getDateDebut()->format('Y-m-d H:i:s'),
+                'dateFin' => $availability->getDateFin()->format('Y-m-d H:i:s'),
+                'prixParJour' => $availability->getPrixParJour(),
+                'statut' => $availability->isStatut(),
+                'vehicle' => [
+                    'id' => $availability->getVehicle()->getId(),
+                    'marque' => $availability->getVehicle()->getMarque(),
+                    'modele' => $availability->getVehicle()->getModele()
+                ]
+            ];
+        }
+
+        // Répondre avec les disponibilités au format JSON
         return $this->json($availabilityArray);
     }
 
