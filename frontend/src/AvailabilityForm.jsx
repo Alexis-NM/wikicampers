@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 
-const AvailabilityForm = ({ vehicleId }) => {
+function AvailabilityForm({ vehicleId }) {
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [prixParJour, setPrixParJour] = useState("");
   const [statut, setStatut] = useState("");
   const [availabilities, setAvailabilities] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [availabilityToDelete, setAvailabilityToDelete] = useState(null);
+  const [availabilityToEdit, setAvailabilityToEdit] = useState(null); // Ajoutez un état pour stocker la disponibilité à modifier
 
   useEffect(() => {
     // Récupérer les disponibilités actuelles du véhicule
@@ -44,28 +47,41 @@ const AvailabilityForm = ({ vehicleId }) => {
         // Gérer les erreurs ici, par exemple afficher un message d'erreur à l'utilisateur.
       });
   };
-  const handleModify = (availabilityId) => {
-    // Logique pour la modification d'une disponibilité
-    const updatedAvailability = availabilities.find(
-      (avail) => avail.id === availabilityId
-    );
-    if (!updatedAvailability) return;
+
+  const handleModify = (availability) => {
+    // Fonction pour sélectionner la disponibilité à modifier et pré-remplir le formulaire
+    setAvailabilityToEdit(availability);
+    setDateDebut(availability.dateDebut);
+    setDateFin(availability.dateFin);
+    setPrixParJour(availability.prixParJour);
+    setStatut(availability.statut);
+  };
+
+  const handleEditSubmit = () => {
+    // Fonction pour soumettre les modifications de la disponibilité
+    const updatedAvailability = {
+      ...availabilityToEdit,
+      dateDebut: dateDebut,
+      dateFin: dateFin,
+      prixParJour: prixParJour,
+      statut: statut,
+    };
 
     axios
       .put(
-        `http://localhost:8000/api/availabilities/${availabilityId}`,
+        `http://localhost:8000/api/availabilities/${availabilityToEdit.id}`,
         updatedAvailability
       )
       .then((response) => {
         console.log("Availability updated successfully:", response.data);
-        // Mettre à jour les disponibilités
         const updatedAvailabilities = availabilities.map((avail) => {
-          if (avail.id === availabilityId) {
+          if (avail.id === availabilityToEdit.id) {
             return response.data;
           }
           return avail;
         });
         setAvailabilities(updatedAvailabilities);
+        setAvailabilityToEdit(null); // Réinitialiser la disponibilité à modifier après la modification réussie
       })
       .catch((error) => {
         console.error("Error updating availability:", error);
@@ -89,6 +105,18 @@ const AvailabilityForm = ({ vehicleId }) => {
       });
   };
 
+  // Définissez la fonction pour ouvrir la modale et stocker l'ID de la disponibilité à supprimer
+  const openModal = (availabilityId) => {
+    setAvailabilityToDelete(availabilityId);
+    setShowModal(true);
+  };
+
+  // Définissez la fonction pour fermer la modale
+  const closeModal = () => {
+    setShowModal(false);
+    setAvailabilityToDelete(null); // Réinitialisez l'ID de la disponibilité à supprimer
+  };
+
   return (
     <div>
       <h2>Disponibilités actuelles du véhicule</h2>
@@ -97,17 +125,39 @@ const AvailabilityForm = ({ vehicleId }) => {
           <li key={availability.id}>
             {availability.dateDebut} - {availability.dateFin} (Prix:{" "}
             {availability.prixParJour}€, Statut:{" "}
-            {availability.statut ? "Disponible" : "Non disponible"})
+            {availability.statut ? "Disponible" : "Non Disponible"})
             <button onClick={() => handleModify(availability.id)}>
               Modifier
             </button>
-            <button onClick={() => handleDelete(availability.id)}>
+            <button onClick={() => openModal(availability.id)}>
               Supprimer
             </button>
           </li>
         ))}
       </ul>
 
+      {/* Modale de confirmation de suppression */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Confirmation de suppression</h2>
+            <p>Êtes-vous sûr de vouloir supprimer cette disponibilité ?</p>
+            <div className="modal-buttons">
+              {/* Bouton pour confirmer la suppression */}
+              <button
+                onClick={() => {
+                  handleDelete(availabilityToDelete);
+                  closeModal(); // Fermez la modale après la suppression
+                }}
+              >
+                Confirmer
+              </button>
+              {/* Bouton pour annuler la suppression */}
+              <button onClick={closeModal}>Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
       <h2>Ajouter une disponibilité pour ce véhicule</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -141,18 +191,18 @@ const AvailabilityForm = ({ vehicleId }) => {
           <label>Statut :</label>
           <select
             value={statut}
-            onChange={(e) => setStatut(e.target.value)}
+            onChange={(e) => setStatut(e.target.value === "true")}
             required
           >
             <option value="true">Disponible</option>
-            <option value="false">Non disponible</option>
+            <option value="false">Non Disponible</option>
           </select>
         </div>
         <button type="submit">Ajouter</button>
       </form>
     </div>
   );
-};
+}
 
 AvailabilityForm.propTypes = {
   vehicleId: PropTypes.number.isRequired,
