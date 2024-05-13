@@ -8,7 +8,7 @@ const VehicleList = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/vehicles")
+      .get(`${import.meta.env.VITE_BACKEND_URL}/vehicles`)
       .then((response) => {
         setVehicles(response.data);
       })

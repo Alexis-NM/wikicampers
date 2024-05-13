@@ -14,7 +14,7 @@ const VehicleForm = () => {
     };
 
     axios
-      .post("http://localhost:8000/api/vehicles", newVehicle)
+      .post(`${import.meta.env.VITE_BACKEND_URL}/vehicles`, newVehicle)
       .then((response) => {
         console.log("Vehicle created successfully:", response.data);
         // Vous pouvez effectuer une action ici après la création réussie du véhicule, comme afficher un message de confirmation.

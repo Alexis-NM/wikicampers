@@ -146,4 +146,5 @@ class VehicleController extends AbstractController
             'modele' => $vehicle->getModele(),
         ]);
     }
+
 }

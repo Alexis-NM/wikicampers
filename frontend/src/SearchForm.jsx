@@ -9,15 +9,12 @@ const SearchForm = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Envoie de la requête à l'API Symfony avec les dates de départ, de retour et le prix maximum
+    // Construction de l'URL de la requête avec les paramètres de recherche
+    const url = `https://localhost:8000/api/vehicles`;
+
+    // Envoi de la requête à l'API Symfony avec les paramètres de recherche dans l'URL
     axios
-      .get("http://localhost:8000/api/vehicles", {
-        params: {
-          startDate: startDate,
-          endDate: endDate,
-          maxPrice: maxPrice,
-        },
-      })
+      .get(url)
       .then((response) => {
         // Mettre à jour l'affichage avec les résultats de la recherche
         console.log("Vehicles available:", response.data);

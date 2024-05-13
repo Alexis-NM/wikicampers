@@ -6,16 +6,20 @@ function AvailabilityForm({ vehicleId }) {
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [prixParJour, setPrixParJour] = useState("");
-  const [statut, setStatut] = useState("");
+  const [statut, setStatut] = useState(true);
   const [availabilities, setAvailabilities] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [availabilityToDelete, setAvailabilityToDelete] = useState(null);
-  const [availabilityToEdit, setAvailabilityToEdit] = useState(null); // Ajoutez un état pour stocker la disponibilité à modifier
+  const [availabilityToEdit, setAvailabilityToEdit] = useState(null);
 
   useEffect(() => {
     // Récupérer les disponibilités actuelles du véhicule
     axios
-      .get(`http://localhost:8000/api/availabilities/vehicle/${vehicleId}`)
+      .get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/availabilities/vehicle/${vehicleId}`
+      )
       .then((response) => {
         setAvailabilities(response.data); // Pas besoin de mettre les données dans un tableau
       })
@@ -36,7 +40,10 @@ function AvailabilityForm({ vehicleId }) {
     };
 
     axios
-      .post("http://localhost:8000/api/availabilities", newAvailability)
+      .post(
+        `${import.meta.env.VITE_BACKEND_URL}/availabilities`,
+        newAvailability
+      )
       .then((response) => {
         console.log("Availability created successfully:", response.data);
         // Actualiser la liste des disponibilités après la création réussie
@@ -49,7 +56,6 @@ function AvailabilityForm({ vehicleId }) {
   };
 
   const handleModify = (availability) => {
-    // Fonction pour sélectionner la disponibilité à modifier et pré-remplir le formulaire
     setAvailabilityToEdit(availability);
     setDateDebut(availability.dateDebut);
     setDateFin(availability.dateFin);
@@ -58,7 +64,6 @@ function AvailabilityForm({ vehicleId }) {
   };
 
   const handleEditSubmit = () => {
-    // Fonction pour soumettre les modifications de la disponibilité
     const updatedAvailability = {
       ...availabilityToEdit,
       dateDebut: dateDebut,
@@ -67,21 +72,24 @@ function AvailabilityForm({ vehicleId }) {
       statut: statut,
     };
 
+    // Mettre à jour l'état `availabilities` avec la nouvelle version de la disponibilité modifiée
+    const updatedAvailabilities = availabilities.map((availability) =>
+      availability.id === availabilityToEdit.id
+        ? updatedAvailability
+        : availability
+    );
+    setAvailabilities(updatedAvailabilities);
+
+    // Effectuer la requête PUT vers le backend pour mettre à jour la disponibilité dans la base de données
     axios
       .put(
-        `http://localhost:8000/api/availabilities/${availabilityToEdit.id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/availabilities/${
+          availabilityToEdit.id
+        }`,
         updatedAvailability
       )
       .then((response) => {
         console.log("Availability updated successfully:", response.data);
-        const updatedAvailabilities = availabilities.map((avail) => {
-          if (avail.id === availabilityToEdit.id) {
-            return response.data;
-          }
-          return avail;
-        });
-        setAvailabilities(updatedAvailabilities);
-        setAvailabilityToEdit(null); // Réinitialiser la disponibilité à modifier après la modification réussie
       })
       .catch((error) => {
         console.error("Error updating availability:", error);
@@ -91,7 +99,9 @@ function AvailabilityForm({ vehicleId }) {
   const handleDelete = (availabilityId) => {
     // Logique pour la suppression d'une disponibilité
     axios
-      .delete(`http://localhost:8000/api/availabilities/${availabilityId}`)
+      .delete(
+        `${import.meta.env.VITE_BACKEND_URL}/availabilities/${availabilityId}`
+      )
       .then((response) => {
         console.log("Availability deleted successfully:", response.data);
         // Filtrer les disponibilités pour supprimer celle qui a été supprimée
@@ -123,19 +133,68 @@ function AvailabilityForm({ vehicleId }) {
       <ul>
         {availabilities.map((availability) => (
           <li key={availability.id}>
-            {availability.dateDebut} - {availability.dateFin} (Prix:{" "}
-            {availability.prixParJour}€, Statut:{" "}
-            {availability.statut ? "Disponible" : "Non Disponible"})
-            <button onClick={() => handleModify(availability.id)}>
-              Modifier
-            </button>
-            <button onClick={() => openModal(availability.id)}>
-              Supprimer
-            </button>
+            {availability === availabilityToEdit ? (
+              <form>
+                <div>
+                  <label htmlFor="dateDebut">Date de début :</label>
+                  <input
+                    type="datetime-local"
+                    id="dateDebut"
+                    value={dateDebut}
+                    onChange={(e) => setDateDebut(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="dateFin">Date de fin :</label>
+                  <input
+                    type="datetime-local"
+                    id="dateFin"
+                    value={dateFin}
+                    onChange={(e) => setDateFin(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="prixParJour">Prix par jour :</label>
+                  <input
+                    type="number"
+                    id="prixParJour"
+                    value={prixParJour}
+                    onChange={(e) => setPrixParJour(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="statut">Statut :</label>
+                  <select
+                    id="statut"
+                    value={statut}
+                    onChange={(e) => setStatut(e.target.value === "true")}
+                    required
+                  >
+                    <option value="true">Disponible</option>
+                    <option value="false">Non Disponible</option>
+                  </select>
+                </div>
+                <button onClick={() => handleEditSubmit()}>Valider</button>
+              </form>
+            ) : (
+              <>
+                {availability.dateDebut} - {availability.dateFin} (Prix:{" "}
+                {availability.prixParJour}€, Statut:{" "}
+                {availability.statut ? "Disponible" : "Non Disponible"})
+                <button onClick={() => handleModify(availability)}>
+                  Modifier
+                </button>
+                <button onClick={() => openModal(availability.id)}>
+                  Supprimer
+                </button>
+              </>
+            )}
           </li>
         ))}
       </ul>
-
       {/* Modale de confirmation de suppression */}
       {showModal && (
         <div className="modal">
@@ -191,11 +250,11 @@ function AvailabilityForm({ vehicleId }) {
           <label>Statut :</label>
           <select
             value={statut}
-            onChange={(e) => setStatut(e.target.value === "true")}
+            onChange={(e) => setStatut(Boolean(e.target.value))}
             required
           >
-            <option value="true">Disponible</option>
-            <option value="false">Non Disponible</option>
+            <option value={true}>Disponible</option>
+            <option value={false}>Non Disponible</option>
           </select>
         </div>
         <button type="submit">Ajouter</button>
