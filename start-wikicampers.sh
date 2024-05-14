@@ -8,6 +8,10 @@ composer install
 cd ../frontend
 npm install
 
+# Initialiser la base de données à partir des entités
+cd ../backend
+php bin/console doctrine:schema:create
+
 # Lancer le back-end
 symfony server:start &
 
