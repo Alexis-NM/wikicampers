@@ -76,28 +76,18 @@ class VehicleController extends AbstractController
     public function updateVehicle(Request $request, $id): Response
     {
         $vehicle = $this->entityManager->getRepository(Vehicle::class)->find($id);
-
-        // Vérifier si le véhicule existe
         if (!$vehicle) {
-            // Retourner une réponse avec un code d'erreur et un message explicatif
             return new JsonResponse(['message' => 'Véhicule non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
-        // Récupérer les données du corps de la requête
         $data = json_decode($request->getContent(), true);
-
-        // Mettre à jour les données du véhicule
         if (isset($data['marque'])) {
             $vehicle->setMarque($data['marque']);
         }
         if (isset($data['modele'])) {
             $vehicle->setModele($data['modele']);
         }
-
-        // Enregistrer les modifications dans la base de données
         $this->entityManager->flush();
-
-        // Retourner une réponse avec le véhicule mis à jour
         return $this->json([
             'id' => $vehicle->getId(),
             'marque' => $vehicle->getMarque(),
@@ -114,7 +104,6 @@ class VehicleController extends AbstractController
 
         // Vérifier si le véhicule existe
         if (!$vehicle) {
-            // Retourner une réponse avec un code d'erreur et un message explicatif
             return new JsonResponse(['message' => 'Véhicule non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
@@ -122,7 +111,6 @@ class VehicleController extends AbstractController
         $this->entityManager->remove($vehicle);
         $this->entityManager->flush();
 
-        // Retourner une réponse avec un message de succès
         return new JsonResponse(['message' => 'Véhicule supprimé'], Response::HTTP_OK);
     }
 
@@ -135,16 +123,13 @@ class VehicleController extends AbstractController
 
         // Vérifier si le véhicule existe
         if (!$vehicle) {
-            // Retourner une réponse avec un code d'erreur et un message explicatif
             return new JsonResponse(['message' => 'Véhicule non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
-        // Retourner une réponse avec le véhicule
         return $this->json([
             'id' => $vehicle->getId(),
             'marque' => $vehicle->getMarque(),
             'modele' => $vehicle->getModele(),
         ]);
     }
-
 }

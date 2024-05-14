@@ -1,16 +1,41 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
+import "./AvailabilityForm.scss";
 
-function AvailabilityForm({ vehicleId }) {
-  const [dateDebut, setDateDebut] = useState("");
-  const [dateFin, setDateFin] = useState("");
-  const [prixParJour, setPrixParJour] = useState("");
-  const [statut, setStatut] = useState(true);
+function AvailabilityForm({ vehicleId, onShowVehicleList }) {
+  // State variables for adding availability
+  const [newDateDebut, setNewDateDebut] = useState("");
+  const [newDateFin, setNewDateFin] = useState("");
+  const [newPrixParJour, setNewPrixParJour] = useState("");
+  const [newStatut, setNewStatut] = useState("");
+
+  // State variables for editing availability
+  const [editedDateDebut, setEditedDateDebut] = useState("");
+  const [editedDateFin, setEditedDateFin] = useState("");
+  const [editedPrixParJour, setEditedPrixParJour] = useState("");
+  const [editedStatut, setEditedStatut] = useState("");
+
   const [availabilities, setAvailabilities] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [availabilityToDelete, setAvailabilityToDelete] = useState(null);
   const [availabilityToEdit, setAvailabilityToEdit] = useState(null);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [isNotAvailable, setIsNotAvailable] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, checked } = e.target;
+
+    if (name === "available") {
+      setIsAvailable(checked);
+      setIsNotAvailable(false);
+      setNewStatut(checked);
+    } else if (name === "not-available") {
+      setIsAvailable(false);
+      setIsNotAvailable(checked);
+      setNewStatut(false);
+    }
+  };
 
   useEffect(() => {
     // Récupérer les disponibilités actuelles du véhicule
@@ -32,10 +57,10 @@ function AvailabilityForm({ vehicleId }) {
     event.preventDefault();
 
     const newAvailability = {
-      dateDebut: dateDebut,
-      dateFin: dateFin,
-      prixParJour: prixParJour,
-      statut: statut,
+      dateDebut: newDateDebut,
+      dateFin: newDateFin,
+      prixParJour: newPrixParJour,
+      statut: newStatut,
       vehicle: { id: vehicleId },
     };
 
@@ -57,19 +82,19 @@ function AvailabilityForm({ vehicleId }) {
 
   const handleModify = (availability) => {
     setAvailabilityToEdit(availability);
-    setDateDebut(availability.dateDebut);
-    setDateFin(availability.dateFin);
-    setPrixParJour(availability.prixParJour);
-    setStatut(availability.statut);
+    setEditedDateDebut(availability.dateDebut);
+    setEditedDateFin(availability.dateFin);
+    setEditedPrixParJour(availability.prixParJour);
+    setEditedStatut(availability.statut);
   };
 
   const handleEditSubmit = () => {
     const updatedAvailability = {
       ...availabilityToEdit,
-      dateDebut: dateDebut,
-      dateFin: dateFin,
-      prixParJour: prixParJour,
-      statut: statut,
+      dateDebut: editedDateDebut,
+      dateFin: editedDateFin,
+      prixParJour: editedPrixParJour,
+      statut: editedStatut,
     };
 
     // Mettre à jour l'état `availabilities` avec la nouvelle version de la disponibilité modifiée
@@ -115,86 +140,102 @@ function AvailabilityForm({ vehicleId }) {
       });
   };
 
-  // Définissez la fonction pour ouvrir la modale et stocker l'ID de la disponibilité à supprimer
+  //Fonction pour ouvrir la modale de confirmation de suppression
   const openModal = (availabilityId) => {
     setAvailabilityToDelete(availabilityId);
     setShowModal(true);
   };
 
-  // Définissez la fonction pour fermer la modale
+  // Fonction pour fermer la modale
   const closeModal = () => {
     setShowModal(false);
-    setAvailabilityToDelete(null); // Réinitialisez l'ID de la disponibilité à supprimer
+    setAvailabilityToDelete(null);
   };
 
   return (
-    <div>
-      <h2>Disponibilités actuelles du véhicule</h2>
-      <ul>
-        {availabilities.map((availability) => (
-          <li key={availability.id}>
-            {availability === availabilityToEdit ? (
-              <form>
-                <div>
-                  <label htmlFor="dateDebut">Date de début :</label>
-                  <input
-                    type="datetime-local"
-                    id="dateDebut"
-                    value={dateDebut}
-                    onChange={(e) => setDateDebut(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="dateFin">Date de fin :</label>
-                  <input
-                    type="datetime-local"
-                    id="dateFin"
-                    value={dateFin}
-                    onChange={(e) => setDateFin(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="prixParJour">Prix par jour :</label>
-                  <input
-                    type="number"
-                    id="prixParJour"
-                    value={prixParJour}
-                    onChange={(e) => setPrixParJour(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="statut">Statut :</label>
-                  <select
-                    id="statut"
-                    value={statut}
-                    onChange={(e) => setStatut(e.target.value === "true")}
-                    required
+    <section className="availability-container">
+      <h2>Disponibilités du véhicule :</h2>
+      {availabilities.length === 0 ? (
+        <p>Aucune disponibilité pour le moment.</p>
+      ) : (
+        <ul>
+          {availabilities.map((availability) => (
+            <li key={availability.id}>
+              {availability === availabilityToEdit ? (
+                <form>
+                  <div className="mod">
+                    <label htmlFor="dateDebut">Date de début :</label>
+                    <input
+                      type="datetime-local"
+                      id="dateDebut"
+                      value={editedDateDebut}
+                      onChange={(e) => setEditedDateDebut(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="mod">
+                    <label htmlFor="dateFin">Date de fin :</label>
+                    <input
+                      type="datetime-local"
+                      id="dateFin"
+                      value={editedDateFin}
+                      onChange={(e) => setEditedDateFin(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="mod">
+                    <label htmlFor="prixParJour">Prix par jour :</label>
+                    <input
+                      type="number"
+                      id="prixParJour"
+                      value={editedPrixParJour}
+                      onChange={(e) => setEditedPrixParJour(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="checkbox">
+                    <label htmlFor="available">Disponible :</label>
+                    <input
+                      type="checkbox"
+                      id="available"
+                      name="available"
+                      checked={editedStatut}
+                      onChange={(e) => setEditedStatut(e.target.checked)}
+                    />
+                    <label htmlFor="not-available">Non disponible :</label>
+                    <input
+                      type="checkbox"
+                      id="not-available"
+                      name="not-available"
+                      checked={!editedStatut}
+                      onChange={(e) => setEditedStatut(!e.target.checked)}
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => handleEditSubmit()}
+                    className="validate"
                   >
-                    <option value="true">Disponible</option>
-                    <option value="false">Non Disponible</option>
-                  </select>
-                </div>
-                <button onClick={() => handleEditSubmit()}>Valider</button>
-              </form>
-            ) : (
-              <>
-                {availability.dateDebut} - {availability.dateFin} (Prix:{" "}
-                {availability.prixParJour}€, Statut:{" "}
-                {availability.statut ? "Disponible" : "Non Disponible"})
-                <button onClick={() => handleModify(availability)}>
-                  Modifier
-                </button>
-                <button onClick={() => openModal(availability.id)}>
-                  Supprimer
-                </button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+                    Valider
+                  </button>
+                </form>
+              ) : (
+                <>
+                  {availability.dateDebut} - {availability.dateFin} (Prix:{" "}
+                  {availability.prixParJour}€, Statut:{" "}
+                  {availability.statut ? "Disponible" : "Non Disponible"})
+                  <button onClick={() => handleModify(availability)}>
+                    Modifier
+                  </button>
+                  <button onClick={() => openModal(availability.id)}>
+                    Supprimer
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
       {/* Modale de confirmation de suppression */}
       {showModal && (
         <div className="modal">
@@ -217,14 +258,14 @@ function AvailabilityForm({ vehicleId }) {
           </div>
         </div>
       )}
-      <h2>Ajouter une disponibilité pour ce véhicule</h2>
+      <h2>Ajouter une disponibilité pour ce véhicule :</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Date de début :</label>
           <input
             type="datetime-local"
-            value={dateDebut}
-            onChange={(e) => setDateDebut(e.target.value)}
+            value={newDateDebut}
+            onChange={(e) => setNewDateDebut(e.target.value)}
             required
           />
         </div>
@@ -232,8 +273,8 @@ function AvailabilityForm({ vehicleId }) {
           <label>Date de fin :</label>
           <input
             type="datetime-local"
-            value={dateFin}
-            onChange={(e) => setDateFin(e.target.value)}
+            value={newDateFin}
+            onChange={(e) => setNewDateFin(e.target.value)}
             required
           />
         </div>
@@ -241,30 +282,44 @@ function AvailabilityForm({ vehicleId }) {
           <label>Prix par jour :</label>
           <input
             type="number"
-            value={prixParJour}
-            onChange={(e) => setPrixParJour(e.target.value)}
+            value={newPrixParJour}
+            onChange={(e) => setNewPrixParJour(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Statut :</label>
-          <select
-            value={statut}
-            onChange={(e) => setStatut(Boolean(e.target.value))}
-            required
-          >
-            <option value={true}>Disponible</option>
-            <option value={false}>Non Disponible</option>
-          </select>
+        <div className="checkbox">
+          <label htmlFor="available"></label>
+          Disponible :
+          <input
+            type="checkbox"
+            id="available"
+            name="available"
+            checked={isAvailable}
+            onChange={handleChange}
+          />
+          <label htmlFor="not-available">Non disponible :</label>
+          <input
+            type="checkbox"
+            id="not-available"
+            name="not-available"
+            checked={isNotAvailable}
+            onChange={handleChange}
+          />
         </div>
-        <button type="submit">Ajouter</button>
+        <button type="submit" className="add-button">
+          Ajouter
+        </button>
       </form>
-    </div>
+      <button onClick={onShowVehicleList} className="button-back">
+        Retour à la liste des véhicules
+      </button>
+    </section>
   );
 }
 
 AvailabilityForm.propTypes = {
   vehicleId: PropTypes.number.isRequired,
+  onShowVehicleList: PropTypes.func.isRequired,
 };
 
 export default AvailabilityForm;

@@ -1,22 +1,44 @@
 import SearchForm from "./SearchForm";
-import VehicleForm from "./VehicleForm";
 import VehicleList from "./VehicleList";
-// import Van from "./assets/VanLife.jpg";
+import AvailabilityForm from "./AvailabilityForm";
 import "./App.scss";
+import { useState } from "react";
 
 function App() {
+  const [showAvailabilityForm, setShowAvailabilityForm] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+
+  const handleShowAvailabilityForm = (vehicleId) => {
+    setShowAvailabilityForm(true);
+    setSelectedVehicleId(vehicleId);
+  };
+  const handleShowVehicleList = () => {
+    setShowAvailabilityForm(false);
+  };
+
   return (
     <main>
       <h1 className="main-title">WikiCampers</h1>
-      {/* <img
-        src={Van}
-        alt="Van jaune à l'arrêt dans un paysage de nature désertique"
-        className="van"
-      /> */}
-      <SearchForm />
-      <VehicleForm />
-      <VehicleList />
+      {!showAvailabilityForm && (
+        <section className="search-container">
+          <SearchForm />
+        </section>
+      )}
+      {!showAvailabilityForm && (
+        <section className="vehicle-list-container">
+          <VehicleList onShowAvailabilityForm={handleShowAvailabilityForm} />
+        </section>
+      )}
+      {showAvailabilityForm && (
+        <section className="availability-form-container">
+          <AvailabilityForm
+            vehicleId={selectedVehicleId}
+            onShowVehicleList={handleShowVehicleList}
+          />
+        </section>
+      )}
     </main>
   );
 }
+
 export default App;

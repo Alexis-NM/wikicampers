@@ -82,8 +82,6 @@ public function createAvailability(Request $request): Response
    return $this->json($availabilityArray);
 }
 
-
-
 /**
 * @Route("/api/availabilities/{id}", name="availability_show", methods={"GET"})
 */

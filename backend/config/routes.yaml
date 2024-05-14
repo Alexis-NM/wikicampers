@@ -28,6 +28,12 @@ vehicle_get:
     controller: App\Controller\VehicleController::getVehicle
     methods: ['GET']
 
+# Route pour récupérer toutes les disponibilités
+availability_index:
+  path: /api/availabilities
+  controller: App\Controller\AvailabilityController::index
+  methods: ['GET']
+
 # Route pour créer une nouvelle disponibilité
 availability_create:
     path: '/api/availabilities'
