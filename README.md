@@ -20,8 +20,15 @@ L'application comprend les fonctionnalités suivantes :
 ## Déroulement et rendu
 
 - Le backend est développé avec Symfony version 7.0.7.
+
 - Le frontend utilise React et les outils associés.
+
 - La base de données est configurée avec MySQL, nécessitant d'être créée via le terminal avec la commande `CREATE DATABASE wikicampers`.
+
+- Note : Assurez-vous de mettre à jour les fichiers .env.sample dans les dossiers backend et frontend avec les configurations appropriées avant de lancer le script.
+Veillez à bien remplacer les variables DBNAME et DBPASSWORD de cette ligne-ci :
+DATABASE_URL="mysql://DBNAME:DBPASSWORD@127.0.0.1:3306/wikicampers?serverVersion=8.0.32&charset=utf8mb4"
+
 - Le projet est ensuite facilement testable par l'équipe grâce au script d'initialisation.
 
 ## Instructions d'installation
@@ -33,5 +40,10 @@ Pour initialiser le projet, exécutez le script `start-wikicampers.sh` :
 ```
 Ce script installe les dépendances du backend et du frontend, lance le serveur Symfony et démarre l'application frontend en mode développement.
 
-Note : Assurez-vous de mettre à jour les fichiers .env.sample dans les dossiers backend et frontend avec les configurations appropriées avant de lancer le script.
+## Auteur
 
+With ❤️ by ALEXIS
+
+## Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
