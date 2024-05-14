@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import SearchForm from "./SearchForm";
+import VehicleList from "./VehicleList";
+import AvailabilityForm from "./AvailabilityForm";
+import "./App.scss";
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showAvailabilityForm, setShowAvailabilityForm] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+
+  const handleShowAvailabilityForm = (vehicleId) => {
+    setShowAvailabilityForm(true);
+    setSelectedVehicleId(vehicleId);
+  };
+  const handleShowVehicleList = () => {
+    setShowAvailabilityForm(false);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <main>
+      <h1 className="main-title">WikiCampers</h1>
+      {!showAvailabilityForm && (
+        <section className="search-container">
+          <SearchForm />
+        </section>
+      )}
+      {!showAvailabilityForm && (
+        <section className="vehicle-list-container">
+          <VehicleList onShowAvailabilityForm={handleShowAvailabilityForm} />
+        </section>
+      )}
+      {showAvailabilityForm && (
+        <section className="availability-form-container">
+          <AvailabilityForm
+            vehicleId={selectedVehicleId}
+            onShowVehicleList={handleShowVehicleList}
+          />
+        </section>
+      )}
+    </main>
+  );
 }
 
-export default App
+export default App;
