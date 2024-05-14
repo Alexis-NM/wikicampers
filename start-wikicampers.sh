@@ -16,4 +16,5 @@ php bin/console doctrine:schema:create
 symfony server:start &
 
 # Lancer le front-end
+cd ../frontend
 npm run dev
