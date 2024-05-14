@@ -1,4 +1,4 @@
-# Gestion des disponibilités d’un véhicule en location
+# Gestion des disponibilités d’un Van en location
 
 ## Introduction
 
